@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request, render_template
+from flask_restful import Resource, Api
 
 app = Flask(__name__)
+api = Api(app)
 
 stores = [
     {
@@ -13,6 +15,13 @@ stores = [
         ]
     }
 ]
+
+# instead of a method at a time, you can have a resource and then bind urls with them
+class Student(Resource):
+    def get(self, name):
+        return {'student': name}
+
+api.add_resource(Student, '/student/<string:name>')
 
 @app.route("/")
 def home():
