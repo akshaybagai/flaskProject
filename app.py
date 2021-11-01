@@ -4,6 +4,10 @@ from flask_restful import Resource, Api
 app = Flask(__name__)
 api = Api(app)
 
+items = [
+
+]
+
 stores = [
     {
         "name": "My Store",
@@ -17,11 +21,26 @@ stores = [
 ]
 
 # instead of a method at a time, you can have a resource and then bind urls with them
-class Student(Resource):
+class Item(Resource):
     def get(self, name):
-        return {'student': name}
+        item = next(filter(lambda x: x['name'] == name, items), None)
+        return {'item': item}, 200 if item else 404
 
-api.add_resource(Student, '/student/<string:name>')
+    def post(self, name):
+        if next(filter(lambda x: x['name'] == name, items), None) is not None:
+            return {'message', "An item with name {} already exits".format(name)}, 400
+
+        data = request.get_json()
+        item = {'name': name, 'price': data['price']}
+        items.append(item)
+        return item, 201
+
+class ItemsList(Resource):
+    def get(self):
+        return {'item': items}
+
+api.add_resource(Item, '/item/<string:name>')
+api.add_resource(ItemsList, '/items')
 
 @app.route("/")
 def home():
