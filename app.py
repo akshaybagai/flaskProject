@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, render_template
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 from flask_jwt import JWT, jwt_required
 
 from security import authenticate, identity
@@ -52,7 +52,14 @@ class Item(Resource):
 
     # PUT method is always idempotent
     def put(self, name):
-        data = request.get_json()
+        parser = reqparse.RequestParser()
+        parser.add_argument('price',
+                            type= float,
+                            required=True,
+                            help="This field is required")
+
+        data = parser.parse_args()
+
         item = next(filter(lambda x: x['name'] == name, items), None)
         if item is None:
             item = {'name': name, 'price': data['price']}
